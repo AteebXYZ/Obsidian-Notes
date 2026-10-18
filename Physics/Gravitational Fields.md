@@ -1,3 +1,5 @@
+## Definitions
+
 ![[Definitions#^fc649a]]
 
 ![[Definitions#^5f3bb0]]
@@ -6,16 +8,20 @@
 
 ![[Definitions#^39ed92]]
 
+![[Definitions#^129fc0]]
+
+![[Definitions#^ac878d]]
+
 ## Gravitational Field Strength
 
 G.F Strength is defined as:
 $$
 g = \frac{w}{m}
 $$
-Where
-	g = gravitational field strength, e.g, Earth's gravitational field strength is 9.81
-	w = force due to gravity, or weight
-	m = mass
+Where:
+- g = gravitational field strength, e.g, Earth's gravitational field strength is 9.81
+- w = force due to gravity, or weight
+- m = mass
 
 This equation is rewritten as ${}w = mg{}$ , an easy weight formula.
 
@@ -92,8 +98,7 @@ Where
 
 This is proof that all satellites orbit at a fixed speed given that the radius is fixed. Because of this, all rules of circular motion apply to orbits.
 
-![[Gravitational Fields-1792173379002.webp|365x340]]
-
+![[Gravitational Fields-1792173379002.webp]]
 
 $$
 \begin{flalign}
@@ -146,18 +151,114 @@ So, small changes in r would result in a very small change in g. When the distan
 ![[Gravitational Fields-1792240947313.webp]]
 
 $$
-\begin{align}
+\begin{gather}
 &\text{Radius of the earth: 6370000} \\
 &m = 5.97\times 10^{24} \\ \\
-& \\
-&g = \frac{GM}{r^2} \\
-&g = 6.67\times \frac{10^{-11}(5.97\times 10^{24})}{6370000^{2}} \implies 9.813440652 \\
-&g = 6.67\times \frac{10^{-11}(5.97\times 10^{24})}{(6370000 + 8850)^{2}} \implies 9.786229257 \\
-& \frac{G_{everest}}{G_{e}} = 0.9972 \\
+&g = \frac{GM}{r^2} \\ \\
+&g = 6.67\times \frac{10^{-11}(5.97\times 10^{24})}{6370000^{2}} \implies 9.813440652 \\ \\
+&g = 6.67\times \frac{10^{-11}(5.97\times 10^{24})}{(6370000 + 8850)^{2}} \implies 9.786229257 \\ \\
+& \frac{G_{everest}}{G_{e}} = 0.9972 \\ \\
 & 1-0.9972 = 0.00277 \\
 & 0.00277 \times 100 = 2.77\% \\
 & 2.77\% < 3\%
 
 
-\end{align}
+\end{gather}
 $$
+
+## Gravitational Potential
+
+>[!important]
+>Gravitational potential does NOT equal to Gravitational potential energy.
+
+GP will always have a negative value, and is 0 at distance infinity, basically, if it's infinite distance away from the gravitational field, there will be no affect on the object. GP is still negative on the surface of a mass like a planet, as the distance between the center of both planet and mass decrease, the GP decreases. The equation for this is:
+$$
+\phi=-\frac{GM}{r}
+$$
+Where:
+	${}\phi{}$ = GP (J/kg)
+	G = constant ${}6.67\times 10^{-11}{}$
+	M = mass of the larger body (the one creating the gravitational field)
+	r = distance between the center of masses between both masses.
+	
+### Change in GP
+
+$$
+\Delta \phi=\phi_{f} - \phi_{i}
+$$
+Where:
+	${}\phi_{f}{}$ = final GP
+	${}\phi_{i}{}$ = initial GP
+
+This can be re-written as:
+$$
+\Delta \phi = -\frac{GM}{r_{2}}-\left( -\frac{GM}{r_{1}} \right)
+\\
+\\
+\Delta \phi=-\frac{GM}{r_{2}}+\frac{GM}{r_{1}}
+\\
+\\
+\Delta \phi = GM\left( \frac{1}{r_{1}}-\frac{1}{r_{2}} \right)
+$$
+Where:
+	${}r_{2}{}$ = final distance between masses
+	${}r_{1}{}$ = initial distance between masses
+
+![[Gravitational Fields-1792321246278.webp]]
+
+$$
+\begin{gather}
+&r = 3800\text{km} \qquad M = 3.5\times 10^{23} \qquad m = 528 \\ \\
+& \phi=-\frac{GM}{r} \\ \\
+& -\frac{6.67\times 10^{-11}(3.5\times 10^{23})}{(3800+400)\times 1000} = -5.6\times 10^6
+\end{gather}
+$$
+
+## Gravitational Potential Energy Between Two Point Masses
+
+Work done on a mass is defined by:
+$$
+W = m\Delta \phi
+$$
+- Where:
+	- W = work done in Joules
+	- m = mass of the 
+	- ${}\Delta\phi{}$ = change in gravitational potential of the object (J/kg) (multiplying ${}\frac{\text{J}}{\text{kg}} \times \text{kg}{}$  is just Joules)
+
+The equation for GPE between 2 point masses is:
+$$
+\begin{gather} 
+& W = E_{p} \\ \\
+& E_{p} = -\frac{GMm}{r}
+\end{gather}
+$$
+- Where:
+	- ${}E_{p}{}$ is the GPE.
+	- G is the gravitational constant
+	- M is the mass of the larger body creating the GF.
+	- m is the mass of the object that is moving in the field
+	- r is the distance between the centers of M and m.
+
+Similar to change in GP, the change in GPE is defined as:
+$$
+\begin{gather}
+&\Delta E_{p} = E_{p_{f}} = E_{p_{i}} \\ \\
+&\Delta E_{p} = -\frac{GMm}{r_{2}} - \left( -\frac{GMm}{r_{1}} \right) \\ \\
+& \Delta E_{p} = GMm\left( \frac{1}{r_{1}}-\frac{1}{r_{2}} \right)
+&
+\end{gather}
+$$
+- Where
+	- M is the mass of the object creating GF.
+	- m is the mass of the satellite.
+	- ${}r_{2}{}$ is the final distance between M and m.
+	- ${}r_{1}{}$ is the initial distance between M and m.
+
+>[!important]
+>If the object is not on the surface of the planet:
+> - ${}\Delta \text{G.P.E} \neq mg\Delta h{}$
+
+ $$
+ F =ma \implies F = mg
+ \\ F = \frac{Gm_{1}m_{2}}{r^2}
+ $$

@@ -1,0 +1,10 @@
+{
+  "minimal-style@@h1-size": "2.2em",
+  "minimal-style@@h1-weight": 700,
+  "minimal-style@@h1-l": true,
+  "minimal-style@@h2-size": "1.7em",
+  "things-style@@mobile-black-background": false,
+  "things-style@@active-line": false,
+  "obsidian-typewriter@@active-line-highlight": true,
+  "obsidian-typewriter@@shrink-formatting": true
+}

@@ -14,5 +14,22 @@
       ],
       "key": "ArrowUp"
     }
+  ],
+  "select-current-line:select-current-line-on-keystroke": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "L"
+    }
+  ],
+  "editor:toggle-checklist-status": [],
+  "note-composer:split-file": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "Insert"
+    }
   ]
 }

@@ -1,7 +1,9 @@
 {
   "enabledCssSnippets": [
-    "big-math"
+    "big-math",
+    "center-images"
   ],
-  "cssTheme": "Things",
-  "theme": "obsidian"
+  "cssTheme": "Typewriter",
+  "theme": "obsidian",
+  "accentColor": "#275f6d"
 }
