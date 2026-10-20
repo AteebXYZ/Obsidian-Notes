@@ -1,1 +1,1 @@
-When solving for a polynomial with ${}x{}$ with a degree of more than 2, we usually separate the polynomial into a linear ${}\times{}$ linear or quadratic ${}\times{}$ linear etc, so we can solve the quadratic and find all the factors.
+When solving for a polynomial with ${}x{}$ with a degree of more than 2, we usually separate the polynomial into a (linear ${}\times{}$ linear) or (quadratic ${}\times{}$ linear) etc, so we can solve the quadratic and find all the factors.
