@@ -1,0 +1,10 @@
+{
+  "id": "live-plots",
+  "name": "Live Plots",
+  "version": "1.0.2",
+  "minAppVersion": "1.11.4",
+  "description": "Live, interactive Desmos graphs from desmos-graph code blocks. Requires a free Desmos API key.",
+  "author": "Andrea Di Biagio",
+  "authorUrl": "https://www.patternsthatabide.xyz/",
+  "isDesktopOnly": true
+}

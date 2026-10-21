@@ -1,3 +1,4 @@
 - [[Binomial Expansion]]
 - [[Partial Fractions]]
 - [[Polynomials]]
+- [[Modulus]]

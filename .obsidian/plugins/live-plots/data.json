@@ -1,0 +1,14 @@
+{
+  "apiVersion": "v1.12",
+  "apiKeySecret": "desmos-key",
+  "wheelZoom": "modifier",
+  "defaultHeight": 460,
+  "followTheme": false,
+  "printSnapshots": true,
+  "autoLabels": true,
+  "maxLiveGraphs": 12,
+  "parkCap": 12,
+  "parkTtlMinutes": 5,
+  "takeOverDesmosGraph": true,
+  "debugHooks": false
+}

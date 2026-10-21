@@ -1,0 +1,399 @@
+/* Live Plots — the per-block tree of DESIGN.md §1 and LABELS.md §L6:
+ *
+ *   div.live-plots
+ *   ├─ div.dl-graph        Desmos owns this box
+ *   ├─ div.dl-overlay      MathJax labels (v1), never takes the pointer
+ *   ├─ div.dl-toolbar      actions (Save view) — the TOP pill of the button column
+ *   ├─ img.dl-print        PNG snapshot, print only
+ *   ├─ div.dl-footer
+ *   │   └─ div.dl-sliders  our SliderComponent strip, full width
+ *   └─ div.dl-errors       parse errors and warnings
+ *
+ * §L6 puts the toolbar back at the graph's top-right, at the head of Desmos's
+ * own column rather than on top of it. Desmos stacks that column as
+ *
+ *   .dl-graph .dcg-pillbox-container            absolute, top 5px right 5px
+ *     └─ .dcg-overgraph-pillbox-elements        absolute, top 0 right 0
+ *          └─ .dcg-right-pillbox-elements       flex column, 37px wide, gap 5px
+ *               ├─ .dcg-reset-container         37 × 37, when the ↻ is there
+ *               └─ .dcg-zoom-container          37 × 73
+ *
+ * (measured in the running app, 2026-09-07, features.md at 720 × 460: reset at
+ * y = 5..42 and zoom at y = 47..120 with the ↻; zoom alone at y = 5..78 with
+ * `showResetButtonOnGraphpaper` off). The shift is on the CONTAINER, so it does
+ * not care which pills are inside it: pushing it down by our button's height
+ * plus the column's own 5px gap clears our button in either state.
+ * `--dl-pillbox-shift` is set by block.ts from the toolbar's measured height. */
+
+.live-plots {
+  position: relative;
+  margin: 0.5em 0;
+}
+
+/* `width=` on the block writes the number inline; the cap that keeps that number
+ * from overflowing a narrow pane is the same every time, so it lives here. */
+.live-plots.dl-fixed-width {
+  max-width: 100%;
+}
+
+/* Obsidian's SliderComponent shows its own value beside the handle. Ours reads
+ * back exactly the literal a save writes, so its is hidden rather than shown
+ * twice in two formats (sliders.ts). */
+.live-plots .dl-hidden {
+  display: none;
+}
+
+/* Height comes from the block: it sets --dl-graph-height from `height=` or from
+ * settings.defaultHeight (460 px — below 450 Desmos hides its zoom buttons, §0a A4). */
+.dl-graph {
+  height: var(--dl-graph-height, 460px);
+  width: 100%;
+  /* Dragging the graph must not select the note's text, and a wheel that reaches
+   * the end of the graph must not scroll the note behind it (DESIGN.md §4). */
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: contain;
+}
+
+.dl-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* The labels are positioned in the GRAPH's pixel frame, and the graph is the
+   * root's first child at full width, so the overlay must be exactly the graph's
+   * box — not the root's, which also holds the footer and the error list. */
+  height: var(--dl-graph-height, 460px);
+  overflow: hidden;
+}
+
+/* One label (LABELS.md §L2). Placed by `transform: translate()` from the top-left
+ * of the graph, so a pan moves it with one composited property and no reflow.
+ * The colour is set inline, from the curve's own resolved colour, and MathJax's
+ * SVG paints itself with `currentColor` — which is why the `color` is on the
+ * container rather than a `fill` anywhere.
+ *
+ * Scoped to `.dl-overlay`, NOT to `.live-plots`: the static path measures its
+ * labels in a hidden stage that is not a block root, and without `position:
+ * absolute` a label is a block-level div as wide as its container — measured
+ * 600 px for a two-character label, which then placed it 210 px off the left of
+ * its own figure (2026-09-07). */
+.dl-overlay .dl-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  line-height: 1;
+  /* match Desmos's axis numbers (its default fontSize is 16); override with --dl-label-size in a snippet */
+  font-size: var(--dl-label-size, 18px);
+  /* Desmos draws its own labels in this stack; ours have to look like theirs. */
+  font-family: var(--font-interface);
+}
+
+/* MathJax lands as `.math > mjx-container`, and in Obsidian 1.13.7 that container
+ * holds CommonHTML — `<mjx-c>` elements whose glyphs are CSS content — not an
+ * `<svg>` (measured 2026-09-07). Obsidian's own rules give a math span a display
+ * and a margin meant for prose; inside a 13 px label neither is wanted. The svg
+ * rule below is for a MathJax configured the other way, and costs nothing here.
+ *
+ * The container is selected by the class MathJax puts on it: every container
+ * `createNode` builds is `<mjx-container class="MathJax" jax="CHTML">`, and that
+ * is what the running app shows (probed in the scratch vault, 2026-09-18). A
+ * selector with no `mjx` in its text does not travel into a label's picture
+ * (labels.ts's `ruleIsAboutLabel`), where these two rules could not have applied
+ * anyway — inside the picture the label has no `.dl-overlay` ancestor. */
+.dl-overlay .dl-label .math,
+.dl-overlay .dl-label .MathJax {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.dl-overlay .dl-label .MathJax svg {
+  display: block;
+  color: inherit;
+  fill: currentColor;
+}
+
+.dl-overlay .dl-label-text {
+  display: inline-block;
+}
+
+/* ----------------------------------------------------------------- footer --- */
+
+.dl-footer {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 6px 2px 0;
+}
+
+/* The footer holds the sliders and nothing else now (§L6). Most blocks have
+ * none, and an empty strip must not leave 6px of padding under every graph.
+ * `dl-has-sliders` is put on and taken off the footer by `installSliders`, which
+ * runs on every build and every adopt — so the footer that loses its last row to
+ * an edit loses the class in the same pass. */
+.live-plots .dl-footer:not(.dl-has-sliders) {
+  display: none;
+}
+
+/* The strip takes whatever the button leaves. `min-width: 0` is what actually
+ * lets the tracks shrink inside the flex row rather than overflowing it. */
+.dl-sliders {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dl-sliders:empty {
+  display: none;
+}
+
+/* Name and readout are fixed at the ends; the track takes the rest, so two rows
+ * of different names still line up. */
+.dl-slider-row {
+  display: grid;
+  grid-template-columns: minmax(2.5em, max-content) max-content 1fr max-content minmax(4em, max-content);
+  align-items: center;
+  gap: 8px;
+}
+
+.dl-slider-name {
+  color: var(--text-muted);
+}
+
+.dl-slider-control {
+  min-width: 0;
+}
+
+.dl-slider-bound {
+  color: var(--text-faint);
+  font-family: var(--font-monospace);
+  font-size: var(--font-smallest, 0.75em);
+}
+
+.dl-slider-value {
+  color: var(--text-muted);
+  font-family: var(--font-monospace);
+  font-size: var(--font-smaller);
+  text-align: right;
+}
+
+/* The track fills its cell and the handle is big enough to catch with a
+ * trackpad. Obsidian's own vars set the track; the thumb needs the two vendor
+ * pseudo-elements, which cannot be combined in one rule (an unknown selector in
+ * a list drops the whole rule). */
+.live-plots .dl-slider-control input[type="range"] {
+  width: 100%;
+  margin: 0;
+  --slider-thumb-height: 18px;
+  --slider-thumb-width: 18px;
+  --slider-thumb-radius: 9px;
+  --slider-track-height: 4px;
+}
+
+.live-plots .dl-slider-control input[type="range"]::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+}
+
+/* ---------------------------------------------------------------- toolbar --- */
+
+/* Over the graph, top-right, aligned with the pillbox's own 5px inset. The root
+ * is `position: relative` and the graph is its first child at full width, so
+ * these offsets are the graph's corner. */
+.live-plots .dl-toolbar {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.live-plots .dl-toolbar:empty {
+  display: none;
+}
+
+/* The half of §L6 that keeps Desmos's own buttons clear of ours. Scoped to a
+ * graph of ours, so no other Desmos instance in the app moves — and four
+ * classes deep because Desmos's own
+ * `.dcg-calculator-api-container .dcg-pillbox-container .dcg-overgraph-pillbox-elements
+ * { position: absolute; top: 0; right: 0 }` is three, and its sheet is injected
+ * after ours: a tie goes to whoever came last, and that is never us. */
+.live-plots .dl-graph .dcg-pillbox-container .dcg-overgraph-pillbox-elements {
+  top: var(--dl-pillbox-shift, 0px);
+}
+
+.live-plots .dl-toolbar button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  height: auto;
+  font-size: var(--font-smaller);
+  box-shadow: none;
+  color: var(--text-muted);
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.live-plots .dl-toolbar button:hover {
+  color: var(--text-normal);
+  background-color: var(--background-modifier-hover);
+}
+
+.dl-toolbar-icon {
+  display: flex;
+  align-items: center;
+}
+
+.dl-toolbar-icon .svg-icon {
+  width: 15px;
+  height: 15px;
+}
+
+/* ----------------------------------------------------------------- errors --- */
+
+.dl-errors:empty {
+  display: none;
+}
+
+/* No slab on the list itself: an error earns the red box, a warning does not.
+ * A block that drew its graph and had one remark to make should not look like a
+ * block that failed. */
+.dl-error-list {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-smaller);
+}
+
+.dl-error-list li {
+  margin: 2px 0 0;
+  padding: 4px 10px;
+  border-radius: var(--radius-s);
+}
+
+.dl-error-list li.dl-error {
+  background-color: var(--background-modifier-error);
+  color: var(--text-error);
+}
+
+/* The one link that can appear in this list (desmos.com/my-api, when the API key
+ * is missing): the theme's accent on the red slab is unreadable, so it takes the
+ * slab's own ink and says it is a link by being underlined. */
+.dl-error-list a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.dl-error-list li.dl-warning {
+  /* Warning-coloured text and rule, and NO fill: `--background-modifier-warning`
+   * is the same orange as `--text-warning` in Minimal (measured 2026-09-07,
+   * rgb(213,118,63) for both), which would print the note on top of itself. */
+  color: var(--text-warning, var(--text-muted));
+  background-color: transparent;
+  border-left: 2px solid var(--text-warning, var(--text-faint));
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+}
+
+.dl-note-tag {
+  margin-right: 6px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.dl-error-line {
+  margin-right: 6px;
+  font-family: var(--font-monospace);
+  opacity: 0.8;
+}
+
+/* ---------------------------------------------------------- static figure --- */
+
+/* `interactive=false` puts the screenshot into the note as an `<svg>` carrying
+ * the pixel width and height it was taken at; what it has to do is fit the
+ * column it landed in and keep its ratio (static.ts's `insertSvg`, which pairs
+ * this with `preserveAspectRatio`). Scoped to a static root of ours, so it
+ * cannot reach an element some other plugin gave the same class. */
+.live-plots.dl-static svg.desmos-graph {
+  max-width: 100%;
+  height: auto;
+}
+
+/* The stage the static path screenshots from, and nobody is meant to see it.
+ * Desmos needs a laid-out box, so `display: none` is not available: the stage
+ * goes off the side instead, transparent and deaf to the pointer, and static.ts
+ * removes it in the same call's `finally`. It hangs off the `body` of whichever
+ * document is rendering rather than off a block root — the app's, a pop-out's or
+ * the Export to PDF window's, all of which get this stylesheet (static.ts states
+ * where that was read) — so the selector is unscoped. Its width and height are
+ * the figure's own numbers and are set inline, per stage. */
+.dl-stage {
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ print --- */
+
+/* The snapshot is for print and nothing else, and specificity alone cannot say
+ * so: `.markdown-rendered .live-plots img.dl-print` is (0,3,1) and Minimal's
+ * `.markdown-preview-view img:not(.emoji):not(.link-favicon) { display: block }`
+ * ties it and wins on order, drawing a PNG copy of every graph under every graph
+ * (§0a A8, measured under Minimal — the theme both vaults run). So both halves of
+ * the swap are `!important`, and the print half wins over the screen half by
+ * coming later in this file. */
+.live-plots img.dl-print {
+  display: none !important;
+  width: 100%;
+  height: auto;
+}
+
+/* The swap is keyed on `.dl-has-print`, which block.ts adds only once a snapshot
+ * has actually been taken. With "Print snapshots" off there is no PNG, so the
+ * live canvas prints as it always did — hiding it unconditionally left an empty
+ * box, which is worse than the blank canvas the setting exists to improve on. */
+@media print {
+  /* Ours, unconditionally: none of it belongs in a printed document, whether or
+   * not a snapshot replaced the canvas (LABELS.md §L5). */
+  .live-plots .dl-toolbar,
+  .live-plots .dl-footer,
+  .live-plots .dl-overlay,
+  .live-plots .dl-errors {
+    display: none !important;
+  }
+
+  /* The canvas swap IS conditional: with "Print snapshots" off there is no PNG,
+   * so the live canvas prints as it always did rather than leaving a blank. */
+  .live-plots.dl-has-print .dl-graph {
+    display: none !important;
+  }
+
+  .live-plots.dl-has-print img.dl-print {
+    display: block !important;
+  }
+}
+
+/* ----------------------------------------------------------------- export --- */
+
+/* Export to PDF renders the note in a window of its own and never builds a
+ * calculator (block.ts's print path). What it gets is the block's most recent
+ * PNG, and it is the only image here that is meant to be SEEN — the screen-only
+ * `display: none` on img.dl-print above would otherwise hide it, so it wins on
+ * specificity and stays visible in both media. */
+.live-plots.dl-figure img.dl-print-figure {
+  display: block !important;
+  width: 100%;
+  height: auto;
+  margin: 0.5em 0;
+}
